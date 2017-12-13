@@ -3,6 +3,9 @@ const client = new Discord.Client();
 const config = require("./config.json");
 const fs = require("fs");
 const db = require('quick.db');
+var request = require("superagent");
+const moment = require("moment")
+require("moment-duration-format")
 
 
 client.on("ready", () => {
@@ -17,11 +20,9 @@ client.on("message", message => {
     if (message.author.bot) return;
     if (message.content.indexOf(config.prefix) !== 0) return;
 
-    // This is the best way to define args. Trust me.
     const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
 
-    // The list of if/else is replaced with those simple 2 lines:
     try {
         let commandFile = require(`./commands/${command}.js`);
         commandFile.run(client, message, args);
@@ -32,14 +33,54 @@ client.on("message", message => {
 
 //Join stuff
 client.on("guildCreate", guild => {
-    let general = guild.channels.get("general")
-    if (!general) return;
-    general.send(`:wave: Hi!\nI'm Yuri the Discord Bot!\nI have Moderation and Welcome features.\nTo get started type **${config.prefix}help** to get full list of my commands.\nEnjoy and have fun!`)
     guild.owner.send(`:wave: Hi!\nI'm Yuri the Discord Bot!\nI have Moderation and Welcome features.\nTo get started type **${config.prefix}help** to get full list of my commands.\nEnjoy and have fun!`)
+    db.updateText(`welcomeText_${guild.id}`, `:wave: Welcome %USER% to the **%GUILD_NAME%**! You are %GUILD_MEMBER_COUNT%th member!`)
+    db.updateText(`welcomeLeaveText_${guild.id}`, `Oof... Looks like **%USER_TAG%** left. Good bye...`)
+
+    request
+    .post(`https://discordbots.org/api/bots/${client.user.id}/stats`)
+    .send(`{ "server_count": ${client.guilds.size},
+    "shards": [${client.guilds.size}],
+    "shard_count": ${client.guilds.size} }`)
+    .type('application/json')
+    .set('Authorization', config.discordbotsorg)
+    .set('Accept', 'application/json')
+    .end(err => {
+        if (err) return console.error(err);
+        console.log("Posted stats to disordbots.org!");
+    });
+})
+
+client.on("guildRemove", guild => {
+    request
+    .post(`https://discordbots.org/api/bots/${client.user.id}/stats`)
+    .send(`{ "server_count": ${client.guilds.size},
+    "shards": [${client.guilds.size}],
+    "shard_count": ${client.guilds.size} }`)
+    .type('application/json')
+    .set('Authorization', config.discordbotsorg)
+    .set('Accept', 'application/json')
+    .end(err => {
+        if (err) return console.error(err);
+        console.log("Posted stats to disordbots.org!");
+    });
 })
 
 //Game Stuff
 client.on('ready', () => {
+    request
+    .post(`https://discordbots.org/api/bots/${client.user.id}/stats`)
+    .send(`{ "server_count": ${client.guilds.size},
+    "shards": [${client.guilds.size}],
+    "shard_count": ${client.guilds.size} }`)
+    .type('application/json')
+    .set('Authorization', config.discordbotsorg)
+    .set('Accept', 'application/json')
+    .end(err => {
+        if (err) return console.error(err);
+        console.log("Posted stats to disordbots.org!");
+    });
+
     client.user.setPresence({
         game: {
             name: `on ${client.guilds.array().length} servers with ${client.users.size} members!`,
@@ -62,7 +103,7 @@ function game1() {
 function game2() {
     client.user.setPresence({
         game: {
-            name: `Confused? ${config.prefix}help !`,
+            name: `Confused? Usage ${config.prefix}help`,
             type: 0
         }
     })
@@ -72,7 +113,28 @@ function game2() {
 function game3() {
     client.user.setPresence({
         game: {
-            name: `Want me on your discord server? ${config.prefix}invite !`,
+            name: `Want me on your discord server? Use ${config.prefix}invite`,
+            type: 0
+        }
+    })
+    setTimeout(game4, 30000)
+}
+
+function game4() {
+    const duration = moment.duration(client.uptime).format(" D [days], H [hrs], m [mins], s [secs]");
+    client.user.setPresence({
+        game: {
+            name: `Up for ${duration}`,
+            type: 0
+        }
+    })
+    setTimeout(game5, 30000)
+}
+
+function game5() {
+    client.user.setPresence({
+        game: {
+            name: `I'm open source! - https://github.com/Shazyy/Yuri`,
             type: 0
         }
     })
