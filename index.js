@@ -124,7 +124,7 @@ function game4() {
     const duration = moment.duration(client.uptime).format(" D [days], H [hrs], m [mins], s [secs]");
     client.user.setPresence({
         game: {
-            name: `Up for ${duration}`,
+            name: `you can contact my owner for more commands`,
             type: 0
         }
     })
@@ -134,7 +134,7 @@ function game4() {
 function game5() {
     client.user.setPresence({
         game: {
-            name: `I'm open source! - https://github.com/Shazyy/Yuri`,
+            name:`with ${Clint.user.size} users`,
             type: 0
         }
     })
