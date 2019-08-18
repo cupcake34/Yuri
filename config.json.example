@@ -1,5 +1,5 @@
 {
-	"token": "", //Bot's token
-	"prefix": "!", //Bot's prefix
-	"owner": "" //Owner's ID - http://bit.ly/2yc4tor
+	"token": "NTc2NzQyMDAwODI1NTk3OTYy.XVjNNg.MIaN6Mw4XMhdFo_yAjX1Zq9U9bQ", //Bot's token
+	"prefix": "?", //Bot's prefix
+	"owner": "515168212858568706" //Owner's ID - http://bit.ly/2yc4tor
 }
